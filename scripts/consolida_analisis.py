@@ -56,6 +56,8 @@ def enriquecer_representativos(lista):
             rc["comment_url"] = m["comment_url"]
         else:
             rc["autor"] = ""
+    orden = {"positivo": 0, "negativo": 1, "neutro": 2}
+    lista.sort(key=lambda rc: orden.get(rc.get("sentimiento"), 3))
     return lista
 
 analisis = {}
