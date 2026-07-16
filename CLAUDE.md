@@ -58,4 +58,4 @@ Cualquier cambio visual se hace en `reporte/plantilla.html` y se regenera con `g
 
 - Todo en español (código, datos, reporte). Cifras con formato es-MX.
 - Presupuesto Apify: cuenta con ~$29 USD restantes (tope autorizado $49). Gastado a la fecha: ~$3.85.
-- **PENDIENTE (2026-07-16)**: subir a GitHub. ⚠️ Antes de hacer el repo público: `data/comments_raw.json`, `data/comments_by_post/` y `data/consolidado.json` contienen nombres y IDs de perfiles reales — valorar `.gitignore` o repo privado.
+- **GitHub (2026-07-16)**: repo público `gchavez83/pancho-pelayo-scrapper`, reporte deployado con GitHub Pages en https://gchavez83.github.io/pancho-pelayo-scrapper/ (el `index.html` raíz redirige a `reporte/reporte_pancho_pelayo.html`). ⚠️ Los archivos con datos personales (`data/comments_raw.json`, `data/comments_by_post/`, `data/consolidado.json`, `data/senales_estadisticas.json`, `data/analysis/`) están en `.gitignore` y solo existen localmente — no quitarlos del `.gitignore`.
