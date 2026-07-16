@@ -1,0 +1,13 @@
+# Datos con información personal (nombres e IDs de perfiles reales) — NO subir
+data/comments_raw.json
+data/comments_by_post/
+data/consolidado.json
+data/senales_estadisticas.json
+data/analysis/
+
+# Config local de Claude Code
+.claude/
+
+# Python
+__pycache__/
+*.pyc

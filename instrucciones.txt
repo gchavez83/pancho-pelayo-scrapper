@@ -1,0 +1,49 @@
+en un contexto en el cual nuestro cliente es Pancho Pelayo necesitamos realizar a traves del MCP de Apify un barrido y analisis de las siguientes publicaciones enlistadas, el reporte debe contener 
+
+- Analisis de sentimientos.
+- Analisis y conteo de reacciones.
+- Temas que más se repiten en los comentarios.
+- Principales críticas y áreas de oportunidad.
+- Principales atributos positivos que la gente le reconoce a Pancho.
+- Identificación de posibles ataques orquestados o comportamiento atípico, en caso de existir.
+- Comparativo entre publicaciones para identificar qué tipo de narrativa genera una mejor conversación.
+- Nube de palabras y comentarios representativos de cada pieza.
+
+
+Para partir de ahí y generar recomendaciones de mejora en lo sucesivo. 
+
+Además, estaría bueno que el análisis nos ayude a saber qué narrativa conecta mejor con la audiencia. Es decir, identificar si generan una mejor respuesta los contenidos de contraste, los de propuestas, los de cercanía con la gente, los de identidad sudcaliforniana o los de liderazgo.
+
+
+Reel “Yo quiero” - Video de Salida 
+https://www.facebook.com/reel/1677071040294218 
+
+Reel – Cuestionamos al SICT 1 
+https://www.facebook.com/reel/1672532897305334 
+
+Reel – Cuestionamos al SICT 2 
+https://www.facebook.com/reel/1034155269156136 
+
+Entrevista – Huachicol Fiscal
+https://www.facebook.com/reel/4555300248033224 
+
+*Entrevista – Si yo fuera Gobernador *
+https://www.facebook.com/reel/1342734804505726 
+
+Reel – Claro que se puede 
+https://www.facebook.com/reel/4302735246721894 
+
+Postal Esfuerzo diario
+https://www.facebook.com/share/p/17aQm1RryJ/ 
+
+Postal Esperanza 
+https://www.facebook.com/share/p/1AGqEyB3vN/ 
+
+Reel – Lo que me gusta de BCS 
+https://www.facebook.com/reel/967032306383813 
+
+Carrusel Colonia Olivos La Paz (Fotos Mingo)
+https://www.facebook.com/share/p/19BuqwLt3N/ 
+
+Carrusel Cabo San Lucas con Temo Olachea  
+https://www.facebook.com/share/p/1BWgAKGUYb/

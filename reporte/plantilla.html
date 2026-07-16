@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f9f8fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121016" media="(prefers-color-scheme: dark)">
+<title>Análisis de publicaciones — Pancho Pelayo · Púrpura</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1: #fcfcfd; --page: #f9f8fb;
+    --ink-1: #131118; --ink-2: #55515e; --ink-3: #8b8794;
+    --grid: #e5e2ec; --axis: #c6c2d1; --border: rgba(19,17,24,.10);
+    /* identidad Púrpura (validada con el logo #684d9b) */
+    --brand: #684d9b; --brand-suave: rgba(104,77,155,.10);
+    --pos: #684d9b; --neg: #e34948; --neu: #d9d6e0;
+    --seq-1: #4a3572; --seq-2: #684d9b; --seq-3: #8163b4; --seq-4: #9d87d3;
+    --good: #0ca30c; --crit: #d03b3b; --chip: #efedf4;
+    --logo-chip: transparent;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --surface-1: #1b1922; --page: #121016;
+      --ink-1: #ffffff; --ink-2: #c5c1cf; --ink-3: #8b8794;
+      --grid: #2d2a37; --axis: #3b3846; --border: rgba(255,255,255,.10);
+      --brand: #8f76cb; --brand-suave: rgba(143,118,203,.16);
+      --pos: #8f76cb; --neg: #e66767; --neu: #45424f;
+      --seq-1: #ab97dd; --seq-2: #8f76cb; --seq-3: #7d63b3; --seq-4: #684d9b;
+      --chip: #262330;
+      --logo-chip: #f5f3f8;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--page); color: var(--ink-1); line-height: 1.5;
+    padding: 20px max(14px, env(safe-area-inset-left)) 64px max(14px, env(safe-area-inset-right));
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  header.principal { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+  header.principal img.logo { height: 42px; width: auto; background: var(--logo-chip); border-radius: 8px; padding: 4px 8px; }
+  header.principal .tt { min-width: 0; flex: 1; }
+  header.principal h1 { font-size: clamp(19px, 4.5vw, 26px); letter-spacing: -.01em; line-height: 1.25; }
+  header.principal p { color: var(--ink-2); font-size: 13.5px; margin-top: 2px; }
+  .filtros { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 24px; }
+  .filtros button {
+    border: 1px solid var(--border); background: var(--surface-1); color: var(--ink-2);
+    border-radius: 999px; padding: 8px 14px; font-size: 13px; cursor: pointer; font-family: inherit;
+    white-space: nowrap; touch-action: manipulation; min-height: 36px; flex: 0 0 auto; transition: border-color .12s, color .12s;
+  }
+  .filtros button:hover { border-color: var(--brand); color: var(--ink-1); }
+  .filtros button.activo { background: var(--brand); color: #fff; border-color: var(--brand); font-weight: 600; }
+  .filtros select {
+    display: none; width: 100%; min-height: 44px; font: inherit; font-size: 14px;
+    color: var(--ink-1); background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 12px; padding: 8px 12px; touch-action: manipulation;
+  }
+  @media (max-width: 640px) {
+    .filtros button { display: none; }
+    .filtros select { display: block; }
+  }
+  :is(button, a):focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 6px; }
+  a { color: var(--brand); }
+  a:hover { text-decoration-thickness: 2px; }
+  .grid-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 18px; }
+  .tile { background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px; padding: 13px 15px; display: flex; gap: 11px; align-items: flex-start; min-width: 0; }
+  .tile .ic { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 9px; background: var(--brand-suave); color: var(--brand); display: grid; place-items: center; }
+  .tile .ic svg { width: 18px; height: 18px; }
+  .tile .v { font-size: clamp(19px, 2.6vw, 24px); font-weight: 650; letter-spacing: -.02em; }
+  .tile .l { font-size: 12.5px; color: var(--ink-2); }
+  .tile .sub { font-size: 11.5px; color: var(--ink-3); }
+  .card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px; padding: 18px clamp(14px, 2.5vw, 22px); margin-bottom: 16px; }
+  .card > h2 { font-size: 15.5px; display: flex; align-items: center; gap: 9px; margin-bottom: 4px; }
+  .card > h2 .hic { width: 28px; height: 28px; border-radius: 8px; background: var(--brand-suave); color: var(--brand); display: grid; place-items: center; flex: 0 0 auto; }
+  .card > h2 .hic svg { width: 15px; height: 15px; }
+  .card .desc { font-size: 13px; color: var(--ink-2); margin-bottom: 14px; }
+  .dos-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 760px) { .dos-col { grid-template-columns: 1fr; } }
+  /* barras responsivas (HTML, no SVG: el texto nunca se encoge) */
+  .fila-barra { display: grid; grid-template-columns: minmax(120px, 220px) 1fr max-content; gap: 10px; align-items: center; margin-bottom: 9px; min-width: 0; }
+  .fila-barra .nom { font-size: 13px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fila-barra .pista { background: transparent; border-radius: 5px; height: 20px; position: relative; min-width: 0; }
+  .fila-barra .barra { height: 100%; border-radius: 5px; background: var(--seq-2); min-width: 3px; transition: opacity .12s; }
+  .fila-barra:hover .barra { opacity: .85; }
+  .fila-barra .val { font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  @media (max-width: 560px) {
+    .fila-barra { grid-template-columns: 1fr max-content; grid-template-areas: "nom val" "pista pista"; row-gap: 3px; margin-bottom: 12px; }
+    .fila-barra .nom { grid-area: nom; } .fila-barra .pista { grid-area: pista; } .fila-barra .val { grid-area: val; }
+  }
+  .apilada { display: flex; gap: 2px; height: 20px; border-radius: 5px; overflow: hidden; min-width: 0; }
+  .apilada > div { min-width: 3px; }
+  .leyenda { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; color: var(--ink-2); margin-bottom: 12px; }
+  .leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+  .leyenda i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+  .nube { position: relative; width: 100%; overflow: hidden; }
+  .nube span { position: absolute; line-height: 1; white-space: nowrap; transform: translate(-50%, -50%); }
+  .lista-items { list-style: none; display: flex; flex-direction: column; gap: 11px; padding: 0; }
+  .lista-items li { border-left: 3px solid var(--grid); padding: 2px 0 2px 12px; font-size: 14px; overflow-wrap: anywhere; }
+  .lista-items li .ej { display: block; color: var(--ink-3); font-size: 13px; font-style: italic; margin-top: 2px; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--chip); color: var(--ink-2); margin-left: 6px; vertical-align: middle; white-space: nowrap; }
+  .badge.alta { color: var(--crit); }
+  .badge.pos { color: var(--pos); }
+  .badge.neg { color: var(--neg); }
+  /* comentarios con perfil */
+  .coment { border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; font-size: 14px; display: flex; gap: 11px; }
+  .coment .avatar {
+    flex: 0 0 auto; width: 38px; height: 38px; border-radius: 50%; background: var(--brand-suave); color: var(--brand);
+    display: grid; place-items: center; font-size: 13px; font-weight: 700; letter-spacing: .02em;
+  }
+  .coment .cuerpo { min-width: 0; flex: 1; }
+  .coment .quien { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 2px; }
+  .coment .quien a, .coment .quien b { font-size: 13.5px; font-weight: 650; color: var(--ink-1); text-decoration: none; }
+  .coment .quien a:hover { color: var(--brand); text-decoration: underline; }
+  .coment .txt { overflow-wrap: anywhere; }
+  .coment .m { color: var(--ink-3); font-size: 12px; margin-top: 6px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .coment .m svg { width: 13px; height: 13px; vertical-align: -2px; }
+  .post-head h2 { font-size: clamp(17px, 3.5vw, 20px); }
+  .post-head .meta { font-size: 13px; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 6px; align-items: center; }
+  .texto-post { font-size: 13.5px; color: var(--ink-2); white-space: pre-wrap; border-left: 3px solid var(--brand); padding-left: 12px; margin-top: 12px; max-height: 138px; overflow: hidden auto; overflow-wrap: anywhere; }
+  .alerta { display: flex; gap: 11px; align-items: flex-start; font-size: 14px; }
+  .alerta .ic { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; }
+  .alerta .ic svg { width: 18px; height: 18px; }
+  .alerta.ok .ic { background: rgba(12,163,12,.12); color: var(--good); }
+  .alerta.mal .ic { background: rgba(208,59,59,.12); color: var(--crit); }
+  .scroll-x { overflow-x: auto; }
+  table.tabla-narr { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 560px; }
+  table.tabla-narr th { text-align: left; color: var(--ink-2); font-weight: 600; font-size: 12.5px; border-bottom: 1px solid var(--grid); padding: 6px 8px; }
+  table.tabla-narr td { padding: 7px 8px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+  table.tabla-narr tr:last-child td { border-bottom: none; }
+  .tooltip {
+    position: fixed; pointer-events: none; background: var(--ink-1); color: var(--page);
+    font-size: 12.5px; padding: 6px 10px; border-radius: 8px; opacity: 0; transition: opacity .12s; z-index: 50; max-width: 260px;
+  }
+  .num { font-variant-numeric: tabular-nums; }
+  footer { color: var(--ink-3); font-size: 12px; margin-top: 28px; }
+  .oculto { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="principal">
+    <img class="logo" src="/*__LOGO__*/" alt="Púrpura Solutions" width="119" height="48" translate="no">
+    <div class="tt">
+      <h1>Análisis de conversación digital — Pancho Pelayo</h1>
+      <p id="subtitulo"></p>
+    </div>
+  </header>
+  <nav class="filtros" id="filtros" aria-label="Filtrar por publicación"></nav>
+  <main id="contenido"></main>
+  <footer id="pie"></footer>
+</div>
+<div class="tooltip" id="tooltip" role="presentation"></div>
+<script>
+const DATA = /*__DATA__*/;
+
+const $ = s => document.querySelector(s);
+const nf = new Intl.NumberFormat("es-MX");
+const fmt = n => nf.format(n);
+const esc = s => (s || "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+// ---------- iconos (SVG inline, stroke) ----------
+const I = (d, extra="") => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"${extra}>${d}</svg>`;
+const ICO = {
+  interacciones: I('<path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/>'),
+  reacciones: I('<path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2C10.5 3.5 9.3 3 7.5 3A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7 7-7z"/>'),
+  comentarios: I('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'),
+  shares: I('<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/>'),
+  sentimiento: I('<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>'),
+  autores: I('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>'),
+  temas: I('<path d="M20.6 13.4 12 22l-8.6-8.6a2 2 0 0 1 0-2.8L11 3h7a3 3 0 0 1 3 3v7z" transform="rotate(180 12 12.5) translate(0,1)"/><path d="M20.59 13.41 13.4 20.6a2 2 0 0 1-2.8 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>'),
+  criticas: I('<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'),
+  atributos: I('<path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.9L12 17.8 5.8 21l1.2-6.9-5-4.9 6.9-1L12 2z"/>'),
+  nube: I('<path d="M17.5 19a4.5 4.5 0 1 0-.9-8.9A7 7 0 1 0 6 18.7"/><path d="M6 19h11.5"/>'),
+  escudo: I('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'),
+  check: I('<path d="M20 6 9 17l-5-5"/>'),
+  alertaT: I('<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'),
+  doc: I('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>'),
+  foco: I('<path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.4 1 2.3h6c0-.9.4-1.8 1-2.3A7 7 0 0 0 12 2z"/>'),
+  narrativa: I('<path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="8" rx="1"/><rect x="12" y="6" width="3" height="12" rx="1"/><rect x="17" y="13" width="3" height="5" rx="1"/>'),
+  reloj: I('<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>'),
+  like: I('<path d="M7 10v12M15 5.9 14 10h5.8a2 2 0 0 1 1.9 2.6l-2.3 7A2 2 0 0 1 17.5 21H7V10l4-8a2.4 2.4 0 0 1 4 2z"/>', ' width="13" height="13"'),
+  link: I('<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/>', ' width="13" height="13"'),
+};
+
+// ---------- tooltip (solo puntero fino; en táctil no hay hover) ----------
+const tip = $("#tooltip");
+const hayHover = matchMedia("(hover: hover)").matches;
+function conTooltip(el, html) {
+  if (!hayHover) { el.title = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(); return; }
+  el.addEventListener("mousemove", e => {
+    tip.innerHTML = html; tip.style.opacity = 1;
+    tip.style.left = Math.min(e.clientX + 14, innerWidth - 280) + "px";
+    tip.style.top = (e.clientY + 14) + "px";
+  });
+  el.addEventListener("mouseleave", () => tip.style.opacity = 0);
+}
+
+// ---------- barras horizontales responsivas ----------
+function barrasH(filas, { fmtV = fmt, colorVar = "--seq-2" } = {}) {
+  const maxV = Math.max(...filas.map(f => f.v), 1);
+  const cont = document.createElement("div");
+  filas.forEach(f => {
+    const fila = document.createElement("div");
+    fila.className = "fila-barra";
+    fila.innerHTML = `<div class="nom">${esc(f.n)}</div>
+      <div class="pista"><div class="barra" style="width:${Math.max(2, 100 * f.v / maxV)}%;${f.color ? `background:${f.color}` : `background:var(${colorVar})`}"></div></div>
+      <div class="val num">${fmtV(f.v)}</div>`;
+    conTooltip(fila.querySelector(".pista"), `<b>${esc(f.n)}</b><br>${fmtV(f.v)}`);
+    cont.appendChild(fila);
+  });
+  return cont;
+}
+
+// ---------- barra apilada de sentimiento ----------
+function barraSentimiento(sent, alto) {
+  const total = Math.max(1, sent.positivo + sent.negativo + sent.neutro);
+  const segs = [
+    { k: "Positivo", v: sent.positivo, c: "var(--pos)" },
+    { k: "Neutro", v: sent.neutro, c: "var(--neu)" },
+    { k: "Negativo", v: sent.negativo, c: "var(--neg)" },
+  ];
+  const cont = document.createElement("div");
+  cont.className = "apilada";
+  if (alto) cont.style.height = alto;
+  segs.forEach(s => {
+    if (!s.v) return;
+    const d = document.createElement("div");
+    d.style.cssText = `width:${(100 * s.v / total)}%;background:${s.c};`;
+    conTooltip(d, `<b>${s.k}</b><br>${fmt(s.v)} comentarios (${(100 * s.v / total).toFixed(1)}%)`);
+    cont.appendChild(d);
+  });
+  return cont;
+}
+
+function sentimientoPorPost(posts) {
+  const cont = document.createElement("div");
+  posts.forEach(p => {
+    const fila = document.createElement("div");
+    fila.className = "fila-barra";
+    const nom = document.createElement("div");
+    nom.className = "nom";
+    nom.textContent = p.titulo_corto;
+    const pista = document.createElement("div");
+    pista.className = "pista";
+    pista.style.height = "20px";
+    pista.appendChild(barraSentimiento(p.sentimiento));
+    const val = document.createElement("div");
+    val.className = "val num";
+    val.textContent = p.pct_positivo + "%";
+    fila.append(nom, pista, val);
+    cont.appendChild(fila);
+  });
+  return cont;
+}
+
+// ---------- gráfica temporal (columnas por hora/día) ----------
+const fmtBucket = (k, unidad) => {
+  const d = new Date(unidad === "hora" ? k.replace(" ", "T") + ":00" : k + "T12:00:00");
+  const dia = new Intl.DateTimeFormat("es-MX", { day: "numeric", month: "short" }).format(d);
+  return unidad === "hora" ? `${dia}, ${String(d.getHours()).padStart(2, "0")}:00` : dia;
+};
+function graficaTemporal(serie) {
+  const cont = document.createElement("div");
+  const buckets = (serie && serie.buckets) || [];
+  if (!buckets.length) { cont.textContent = "Sin datos de tiempo disponibles."; return cont; }
+  const maxV = Math.max(...buckets.map(b => b[1]), 1);
+  const zona = document.createElement("div");
+  zona.style.cssText = "display:flex;align-items:flex-end;gap:1px;height:120px;border-bottom:1px solid var(--axis);";
+  buckets.forEach(([k, v]) => {
+    const col = document.createElement("div");
+    col.style.cssText = `flex:1 1 0;min-width:2px;height:${Math.max(v ? 3 : 0, 100 * v / maxV)}%;background:var(--seq-2);border-radius:2px 2px 0 0;`;
+    conTooltip(col, `<b>${fmtBucket(k, serie.unidad)}</b><br>${fmt(v)} comentario${v === 1 ? "" : "s"}`);
+    zona.appendChild(col);
+  });
+  cont.appendChild(zona);
+  const ejes = document.createElement("div");
+  ejes.style.cssText = "display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-3);margin-top:4px;";
+  const medio = buckets[Math.floor(buckets.length / 2)];
+  ejes.innerHTML = `<span>${fmtBucket(buckets[0][0], serie.unidad)}</span>` +
+    (buckets.length > 2 ? `<span>${fmtBucket(medio[0], serie.unidad)}</span>` : "") +
+    `<span>${fmtBucket(buckets[buckets.length - 1][0], serie.unidad)}</span>`;
+  cont.appendChild(ejes);
+  return cont;
+}
+
+// ---------- nube de palabras (colocación en espiral, forma de nube) ----------
+function nube(palabras, n = 40) {
+  const cont = document.createElement("div");
+  cont.className = "nube";
+  const lista = palabras.slice(0, n);
+  if (!lista.length) return cont;
+  const maxF = lista[0][1], minF = lista[lista.length - 1][1];
+  const vars = ["--seq-1", "--seq-2", "--seq-3", "--seq-4"];
+  // se coloca cuando la tarjeta ya tiene ancho real
+  requestAnimationFrame(() => {
+    const W = cont.clientWidth || 600;
+    const esMovil = W < 520;
+    const H = esMovil ? 240 : 300;
+    cont.style.height = H + "px";
+    const cx = W / 2, cy = H / 2, aspecto = W / H;
+    const puestos = [];
+    const choca = r => r.x < 0 || r.y < 2 || r.x + r.w > W || r.y + r.h > H - 2 ||
+      puestos.some(q => r.x < q.x + q.w + 4 && q.x < r.x + r.w + 4 && r.y < q.y + q.h + 2 && q.y < r.y + r.h + 2);
+    lista.forEach(([w, f], i) => {
+      const t = (f - minF) / Math.max(1, maxF - minF);
+      const sp = document.createElement("span");
+      sp.style.fontSize = ((esMovil ? 11 : 13) + t * (esMovil ? 22 : 30)) + "px";
+      sp.style.fontWeight = t > .5 ? 700 : 500;
+      sp.style.color = `var(${vars[t > .75 ? 0 : t > .5 ? 1 : t > .25 ? 2 : 3]})`;
+      sp.style.visibility = "hidden";
+      sp.textContent = w;
+      cont.appendChild(sp);
+      const w2 = sp.offsetWidth, h2 = sp.offsetHeight;
+      // espiral de Arquímedes desde el centro (elíptica según el aspecto del contenedor)
+      let colocado = false;
+      for (let a = 0; a < 220; a++) {
+        const ang = 0.6 * a + (i % 6);
+        const rad = 2.2 * a * 0.6;
+        const x = cx + rad * Math.cos(ang) * Math.min(aspecto * .55, 2.2);
+        const y = cy + rad * Math.sin(ang);
+        const rect = { x: x - w2 / 2, y: y - h2 / 2, w: w2, h: h2 };
+        if (!choca(rect)) {
+          sp.style.left = x + "px";
+          sp.style.top = y + "px";
+          sp.style.visibility = "visible";
+          puestos.push(rect);
+          colocado = true;
+          break;
+        }
+      }
+      if (!colocado) sp.remove();
+      else conTooltip(sp, `<b>${esc(w)}</b><br>${fmt(f)} menciones`);
+    });
+  });
+  return cont;
+}
+
+// ---------- tarjetas de indicadores con icono ----------
+function tiles(defs) {
+  const g = document.createElement("div");
+  g.className = "grid-tiles";
+  defs.forEach(d => {
+    const t = document.createElement("div");
+    t.className = "tile";
+    t.innerHTML = `<div class="ic">${ICO[d.ico] || ICO.doc}</div>
+      <div style="min-width:0"><div class="v num">${d.v}</div><div class="l">${d.l}</div>${d.sub ? `<div class="sub">${d.sub}</div>` : ""}</div>`;
+    g.appendChild(t);
+  });
+  return g;
+}
+
+function card(titulo, ico, desc) {
+  const c = document.createElement("section");
+  c.className = "card";
+  c.innerHTML = `<h2><span class="hic">${ICO[ico] || ICO.doc}</span>${titulo}</h2>` + (desc ? `<p class="desc">${desc}</p>` : "");
+  return c;
+}
+
+const leyendaSent = () => {
+  const l = document.createElement("div");
+  l.className = "leyenda";
+  l.innerHTML = `<span><i style="background:var(--pos)"></i>Positivo</span>
+    <span><i style="background:var(--neu)"></i>Neutro</span>
+    <span><i style="background:var(--neg)"></i>Negativo</span>`;
+  return l;
+};
+
+const iniciales = nombre => nombre.trim().split(/\s+/).slice(0, 2).map(p => p[0] || "").join("").toUpperCase() || "?";
+
+// ---------- vista consolidada ----------
+function vistaConsolidada() {
+  const cont = document.createElement("div");
+  const t = DATA.totales;
+  cont.appendChild(tiles([
+    { v: fmt(t.interacciones), l: "Interacciones totales", sub: "reacciones + comentarios + shares", ico: "interacciones" },
+    { v: fmt(t.reacciones), l: "Reacciones", ico: "reacciones" },
+    { v: fmt(t.comentarios_fb), l: "Comentarios", sub: fmt(t.comentarios_analizados) + " disponibles y analizados", ico: "comentarios" },
+    { v: fmt(t.shares), l: "Compartidos", ico: "shares" },
+    { v: t.pct_positivo + "%", l: "Sentimiento positivo", sub: t.pct_negativo + "% negativo", ico: "sentimiento" },
+  ]));
+
+  const c1 = card("Interacciones por publicación", "narrativa", "Reacciones + comentarios + shares por pieza.");
+  c1.appendChild(barrasH([...DATA.posts].sort((a, b) => b.interacciones - a.interacciones)
+    .map(p => ({ n: p.titulo_corto, v: p.interacciones }))));
+  cont.appendChild(c1);
+
+  const c2 = card("Sentimiento por publicación", "sentimiento", "Proporción de comentarios positivos, neutros y negativos hacia Pancho. La cifra es el % positivo.");
+  c2.appendChild(leyendaSent());
+  c2.appendChild(sentimientoPorPost([...DATA.posts].sort((a, b) => b.pct_positivo - a.pct_positivo)));
+  cont.appendChild(c2);
+
+  const c3 = card("Comparativo de narrativas", "narrativa", "Acumulados y promedios por tipo de narrativa. El promedio por post permite comparar narrativas con distinto número de piezas.");
+  const sx = document.createElement("div");
+  sx.className = "scroll-x";
+  const tabla = document.createElement("table");
+  tabla.className = "tabla-narr";
+  tabla.innerHTML = `<thead><tr><th>Narrativa</th><th>Posts</th><th>Interacciones</th><th>Promedio/post</th><th>% positivo</th><th>% negativo</th></tr></thead>`;
+  const tb = document.createElement("tbody");
+  DATA.narrativas.forEach(n => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td style="text-transform:capitalize">${esc(n.narrativa)}</td><td>${n.posts}</td>
+      <td>${fmt(n.interacciones)}</td><td><b>${fmt(n.interacciones_prom)}</b></td>
+      <td>${n.pct_positivo}%</td><td>${n.pct_negativo}%</td>`;
+    tb.appendChild(tr);
+  });
+  tabla.appendChild(tb);
+  sx.appendChild(tabla);
+  c3.appendChild(sx);
+  const barraNarr = document.createElement("div");
+  barraNarr.style.marginTop = "16px";
+  barraNarr.appendChild(barrasH(DATA.narrativas.map(n => ({
+    n: n.narrativa[0].toUpperCase() + n.narrativa.slice(1), v: n.interacciones_prom
+  })), { fmtV: v => fmt(v) + " prom." }));
+  c3.appendChild(barraNarr);
+  cont.appendChild(c3);
+
+  if (DATA.resumen_ejecutivo) {
+    const c4 = card("Resumen ejecutivo", "doc");
+    DATA.resumen_ejecutivo.forEach(p => {
+      const el = document.createElement("p");
+      el.style.cssText = "font-size:14px;margin-bottom:10px;";
+      el.textContent = p;
+      c4.appendChild(el);
+    });
+    cont.appendChild(c4);
+  }
+
+  const anomalias = DATA.posts.filter(p => p.ataques_orquestados && p.ataques_orquestados.detectado);
+  const c5 = card("Ataques orquestados / comportamiento atípico", "escudo");
+  const al = document.createElement("div");
+  al.className = "alerta " + (anomalias.length ? "mal" : "ok");
+  al.innerHTML = anomalias.length
+    ? `<span class="ic">${ICO.alertaT}</span><div><b>Se detectaron indicios en ${anomalias.length} publicación(es):</b> ${anomalias.map(p => esc(p.titulo_corto)).join(", ")}. Revisa el detalle en cada publicación.</div>`
+    : `<span class="ic">${ICO.check}</span><div>No se detectaron patrones de ataque coordinado en las 11 publicaciones.</div>`;
+  c5.appendChild(al);
+  cont.appendChild(c5);
+
+  const c6 = card("Nube de palabras global", "nube", "Términos más frecuentes en los " + fmt(t.comentarios_analizados) + " comentarios analizados.");
+  c6.appendChild(nube(DATA.top_palabras_global, 60));
+  cont.appendChild(c6);
+
+  if (DATA.recomendaciones) {
+    const c7 = card("Recomendaciones", "foco");
+    const ol = document.createElement("ol");
+    ol.style.cssText = "padding-left:20px;font-size:14px;display:flex;flex-direction:column;gap:8px;";
+    DATA.recomendaciones.forEach(r => {
+      const li = document.createElement("li");
+      li.textContent = r;
+      ol.appendChild(li);
+    });
+    c7.appendChild(ol);
+    cont.appendChild(c7);
+  }
+  return cont;
+}
+
+// ---------- vista de un post ----------
+function vistaPost(p) {
+  const cont = document.createElement("div");
+  const head = document.createElement("div");
+  head.className = "post-head card";
+  head.innerHTML = `<h2>${esc(p.titulo)}</h2>
+    <div class="meta">
+      <span class="badge" style="text-transform:capitalize;background:var(--brand-suave);color:var(--brand);margin-left:0">${esc(p.narrativa)}</span>
+      <span>${esc(p.tipo)}</span>
+      ${p.fecha_publicacion ? `<span>${new Intl.DateTimeFormat("es-MX", { day: "numeric", month: "long", year: "numeric" }).format(new Date(p.fecha_publicacion))}</span>` : ""}
+      <a href="${p.url}" target="_blank" rel="noopener">Ver en Facebook ${ICO.link}</a>
+    </div>
+    <div class="texto-post">${esc(p.texto)}</div>`;
+  cont.appendChild(head);
+
+  cont.appendChild(tiles([
+    { v: fmt(p.reacciones), l: "Reacciones", ico: "reacciones" },
+    { v: fmt(p.comentarios_fb), l: "Comentarios", sub: fmt(p.comentarios_analizados) + " disponibles y analizados", ico: "comentarios" },
+    { v: fmt(p.shares), l: "Compartidos", ico: "shares" },
+    { v: p.pct_positivo + "%", l: "Sentimiento positivo", sub: p.pct_negativo + "% negativo", ico: "sentimiento" },
+    { v: fmt(p.autores_unicos), l: "Autores únicos", ico: "autores" },
+  ]));
+
+  const cs = card("Sentimiento de los comentarios", "sentimiento");
+  cs.appendChild(leyendaSent());
+  cs.appendChild(barraSentimiento(p.sentimiento, "26px"));
+  if (p.desglose_reacciones) {
+    const dr = document.createElement("p");
+    dr.className = "desc";
+    dr.style.marginTop = "12px";
+    dr.innerHTML = "Reacciones: " + Object.entries(p.desglose_reacciones).map(([k, v]) => `${esc(k)} <b class="num">${fmt(v)}</b>`).join(" · ");
+    cs.appendChild(dr);
+  }
+  cont.appendChild(cs);
+
+  const st = p.serie_temporal || {};
+  const ctm = card("Actividad en el tiempo", "reloj",
+    `Comentarios por ${st.unidad === "hora" ? "hora" : "día"} (hora local BCS).` +
+    (st.pct_primeras_24h != null ? ` El ${st.pct_primeras_24h}% de la conversación ocurrió en las primeras 24 horas.` : ""));
+  ctm.appendChild(graficaTemporal(st));
+  cont.appendChild(ctm);
+
+  const dosCol = document.createElement("div");
+  dosCol.className = "dos-col";
+
+  const ct = card("Temas más repetidos", "temas");
+  const ul1 = document.createElement("ul");
+  ul1.className = "lista-items";
+  (p.temas || []).forEach(t => {
+    const li = document.createElement("li");
+    li.style.borderLeftColor = "var(--brand)";
+    li.innerHTML = `<b>${esc(t.tema)}</b><span class="badge num">${fmt(t.menciones)}</span><span class="ej">“${esc(t.ejemplo)}”</span>`;
+    ul1.appendChild(li);
+  });
+  ct.appendChild(ul1);
+  dosCol.appendChild(ct);
+
+  const colDer = document.createElement("div");
+  const cc = card("Críticas y áreas de oportunidad", "criticas");
+  const ul2 = document.createElement("ul");
+  ul2.className = "lista-items";
+  (p.criticas || []).forEach(c => {
+    const li = document.createElement("li");
+    li.style.borderLeftColor = "var(--neg)";
+    li.innerHTML = `${esc(c.critica)}<span class="badge ${c.frecuencia === "alta" ? "alta" : ""}">${esc(c.frecuencia)}</span><span class="ej">“${esc(c.ejemplo)}”</span>`;
+    ul2.appendChild(li);
+  });
+  if (!(p.criticas || []).length) ul2.innerHTML = "<li>Sin críticas relevantes en este post.</li>";
+  cc.appendChild(ul2);
+  colDer.appendChild(cc);
+
+  const ca = card("Atributos positivos reconocidos", "atributos");
+  const ul3 = document.createElement("ul");
+  ul3.className = "lista-items";
+  (p.atributos_positivos || []).forEach(a => {
+    const li = document.createElement("li");
+    li.style.borderLeftColor = "var(--good)";
+    li.innerHTML = `<b>${esc(a.atributo)}</b><span class="badge num">≈${fmt(a.menciones_aprox)}</span><span class="ej">“${esc(a.ejemplo)}”</span>`;
+    ul3.appendChild(li);
+  });
+  ca.appendChild(ul3);
+  colDer.appendChild(ca);
+  dosCol.appendChild(colDer);
+  cont.appendChild(dosCol);
+
+  const cn = card("Nube de palabras", "nube");
+  cn.appendChild(nube(p.top_palabras, 40));
+  cont.appendChild(cn);
+
+  const cq = card("Comentarios representativos", "comentarios");
+  (p.comentarios_representativos || []).forEach(c => {
+    const d = document.createElement("div");
+    d.className = "coment";
+    const cls = c.sentimiento === "positivo" ? "pos" : c.sentimiento === "negativo" ? "neg" : "";
+    const nombre = c.autor || "Usuario de Facebook";
+    const quien = c.autor_url
+      ? `<a href="${c.autor_url}" target="_blank" rel="noopener">${esc(nombre)}</a>`
+      : `<b>${esc(nombre)}</b>`;
+    d.innerHTML = `<div class="avatar" aria-hidden="true">${esc(iniciales(nombre))}</div>
+      <div class="cuerpo">
+        <div class="quien">${quien}<span class="badge ${cls}" style="margin-left:0">${esc(c.sentimiento)}</span></div>
+        <div class="txt">“${esc(c.texto)}”</div>
+        <div class="m"><span class="num">${ICO.like} ${fmt(c.likes || 0)}</span>${c.comment_url ? `<a href="${c.comment_url}" target="_blank" rel="noopener">Ver comentario ${ICO.link}</a>` : ""}</div>
+      </div>`;
+    cq.appendChild(d);
+  });
+  cont.appendChild(cq);
+
+  const co = card("Comportamiento atípico", "escudo");
+  const a = p.ataques_orquestados || {};
+  const alp = document.createElement("div");
+  alp.className = "alerta " + (a.detectado ? "mal" : "ok");
+  alp.innerHTML = a.detectado
+    ? `<span class="ic">${ICO.alertaT}</span><div><b>Indicios detectados.</b> ${esc(a.descripcion || "")}<br><span style="color:var(--ink-3);font-size:13px">${esc(a.indicios || "")}</span></div>`
+    : `<span class="ic">${ICO.check}</span><div>Sin indicios de ataque coordinado. ${esc(a.indicios || "")}</div>`;
+  co.appendChild(alp);
+  const res = document.createElement("p");
+  res.style.cssText = "font-size:14px;color:var(--ink-2);margin-top:14px;";
+  res.textContent = p.resumen || "";
+  co.appendChild(res);
+  cont.appendChild(co);
+
+  return cont;
+}
+
+// ---------- navegación ----------
+function render(vista) {
+  const main = $("#contenido");
+  main.innerHTML = "";
+  document.querySelectorAll(".filtros button").forEach(b => {
+    b.classList.toggle("activo", b.dataset.v === vista);
+    b.setAttribute("aria-pressed", String(b.dataset.v === vista));
+  });
+  const sel = $("#selector-post");
+  if (sel) sel.value = vista;
+  if (vista === "__consolidado__") main.appendChild(vistaConsolidada());
+  else main.appendChild(vistaPost(DATA.posts.find(p => p.clave === vista)));
+  window.scrollTo({ top: 0 });
+}
+
+function init() {
+  DATA.posts.forEach(p => {
+    p.titulo_corto = p.titulo
+      .replace("Carrusel Colonia Olivos La Paz (Fotos Mingo)", "Carrusel Colonia Olivos")
+      .replace("Carrusel Cabo San Lucas con Temo Olachea", "Carrusel CSL Temo Olachea")
+      .replace("Reel “Yo quiero” - Video de Salida", "Reel “Yo quiero” (salida)");
+  });
+  $("#subtitulo").textContent =
+    `Página ${DATA.pagina} · 11 publicaciones · ${fmt(DATA.totales.comentarios_analizados)} comentarios analizados · corte al ${new Intl.DateTimeFormat("es-MX", { day: "numeric", month: "long", year: "numeric" }).format(new Date(DATA.fecha_analisis + "T12:00:00"))}`;
+  const nav = $("#filtros");
+  const bAll = document.createElement("button");
+  bAll.textContent = "Consolidado";
+  bAll.dataset.v = "__consolidado__";
+  bAll.onclick = () => render("__consolidado__");
+  nav.appendChild(bAll);
+  DATA.posts.forEach(p => {
+    const b = document.createElement("button");
+    b.textContent = p.titulo_corto;
+    b.dataset.v = p.clave;
+    b.onclick = () => render(p.clave);
+    nav.appendChild(b);
+  });
+  // en pantallas chicas los chips se sustituyen por un selector nativo (sin scroll)
+  const sel = document.createElement("select");
+  sel.id = "selector-post";
+  sel.setAttribute("aria-label", "Seleccionar publicación");
+  sel.innerHTML = `<option value="__consolidado__">Consolidado</option>` +
+    DATA.posts.map(p => `<option value="${p.clave}">${esc(p.titulo_corto)}</option>`).join("");
+  sel.onchange = () => render(sel.value);
+  nav.appendChild(sel);
+  $("#pie").textContent = "Elaborado por Púrpura Solutions. Fuente: Facebook vía Apify (facebook-posts-scraper y facebook-comments-scraper). Sentimiento y temas clasificados con IA (Claude). Los conteos de comentarios de Facebook incluyen comentarios borrados o filtrados que no son visibles públicamente.";
+  render("__consolidado__");
+}
+init();
+</script>
+</body>
+</html>
