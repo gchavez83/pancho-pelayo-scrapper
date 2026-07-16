@@ -51,7 +51,7 @@ Cualquier cambio visual se hace en `reporte/plantilla.html` y se regenera con `g
 - Identidad Púrpura: `#684d9b` (oscuro `#8f76cb`); rampa validada `#4a3572/#684d9b/#8163b4/#9d87d3` (invertida en dark). Sentimiento: positivo púrpura, negativo rojo `#e34948`, neutro gris.
 - Filtro por post: chips envueltos en escritorio, `<select>` nativo en ≤640px (el usuario NO quiere scroll horizontal en el segmentador).
 - Nube de palabras: colocación en espiral con colisiones (forma de nube real).
-- Comentarios representativos: ligados a autor real (avatar de iniciales + link a perfil y al comentario).
+- Comentarios representativos: ligados a autor real (avatar de iniciales + link a perfil y al comentario). Cada post incluye **2 neutros** (peticiones ciudadanas, preguntas, sugerencias — curados a mano en `data/analysis/*.json` el 2026-07-16, texto verbatim del crudo para que `consolida_analisis.py` ligue el autor). Orden en la tarjeta: positivo → negativo → neutro (sort en `enriquecer_representativos`).
 - Gráfica temporal por post: comentarios por día, hora local BCS (UTC-7), % en primeras 24h.
 
 ## Convenciones y pendientes
