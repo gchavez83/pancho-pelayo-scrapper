@@ -4,6 +4,8 @@ data/comments_by_post/
 data/consolidado.json
 data/senales_estadisticas.json
 data/analysis/
+data/polaridad/
+data/base_datos_comentarios.*
 
 # Config local de Claude Code
 .claude/
